@@ -1,0 +1,27 @@
+app:
+  rest:
+    name: "rest app"
+    address: "0.0.0.0:4545"
+  grpc:
+    name: "grpc app"
+    address: "0.0.0.0:4546"
+auth:
+  secret_key: "secret key"
+  audience: "go_web_boilerplate"
+  issuer: "ashkan"
+  access_token_duration: 15
+  refresh_token_duration: 168
+postgresql:
+  username: "postgres"
+  password: "admin1234"
+  db_name: "test"
+  host: "localhost"
+  port: "5432"
+redis:
+  address: "localhost:6379"
+  password: ""
+  db: 0
+account:
+  min_username_length: 10
+order:
+  min_username_length: 10
