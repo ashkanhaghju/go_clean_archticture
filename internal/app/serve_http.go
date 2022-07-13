@@ -5,10 +5,10 @@ import (
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap/zapcore"
 	"go_web_boilerplate/internal/config"
-	"go_web_boilerplate/internal/infra/db/postgres"
+	"go_web_boilerplate/internal/infra/db/mongodb"
 	"go_web_boilerplate/internal/pkg/auth"
 	"go_web_boilerplate/internal/pkg/logger/zap"
-	"go_web_boilerplate/internal/repository/gormImpl"
+	"go_web_boilerplate/internal/repository/mongoImpl"
 	"go_web_boilerplate/internal/service"
 	"go_web_boilerplate/internal/transport/http/echo"
 	"go_web_boilerplate/internal/usecase"
@@ -57,13 +57,14 @@ func serve(c *cli.Context) error {
 		time.Duration(cfg.Auth.RefreshTokenDuration)*time.Hour,
 	)
 
-	pgRepoImpl, err := postgres.NewGorm(cfg.Postgres, logger)
+	mongoRepoImpl, err := mongodb.NewMongo(cfg.Mongo, logger)
+	//pgRepoImpl, err := postgres.NewGorm(cfg.Postgres, logger)
 	if err != nil {
 		return err
 	}
 	// define repose
+	userRepo := mongoImpl.NewUserRepository(*mongoRepoImpl, jwtAuth, logger)
 	//userRepo := gormImpl.NewUserRepository(*pgRepoImpl, jwtAuth, logger)
-	userRepo := gormImpl.NewUserRepository(*pgRepoImpl, jwtAuth, logger)
 
 	// define userCases
 	userUseCase := usecase.NewUserUseCase(userRepo, logger)

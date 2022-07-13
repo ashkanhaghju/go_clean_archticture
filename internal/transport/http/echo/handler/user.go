@@ -21,8 +21,8 @@ func (h *Handler) GetAllUserList(c echo.Context) error {
 			Name: users[i].Name,
 		})
 	}
-	return c.JSON(http.StatusOK, c.Get("user"))
-	//return c.JSON(http.StatusOK, response.BaseResponse{Message: "ok", Status: http.StatusOK, Result: result})
+
+	return c.JSON(http.StatusOK, response.BaseResponse{Message: "ok", Status: http.StatusOK, Result: result})
 }
 
 func (h *Handler) Login(c echo.Context) error {

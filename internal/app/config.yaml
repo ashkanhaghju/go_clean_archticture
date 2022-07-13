@@ -17,6 +17,12 @@ postgresql:
   db_name: "test"
   host: "localhost"
   port: "5432"
+mongodb:
+  username: "mongoadmin"
+  password: "mongoadmin"
+  db_name: "boiler_test"
+  host: "localhost"
+  port: "27017"
 redis:
   address: "localhost:6379"
   password: ""

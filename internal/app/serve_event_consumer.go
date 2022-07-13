@@ -5,11 +5,11 @@ import (
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap/zapcore"
 	"go_web_boilerplate/internal/config"
-	"go_web_boilerplate/internal/infra/db/postgres"
+	"go_web_boilerplate/internal/infra/db/mongodb"
 	app "go_web_boilerplate/internal/middleware"
 	"go_web_boilerplate/internal/pkg/auth"
 	"go_web_boilerplate/internal/pkg/logger/zap"
-	"go_web_boilerplate/internal/repository/gormImpl"
+	"go_web_boilerplate/internal/repository/mongoImpl"
 	"go_web_boilerplate/internal/service"
 	Grpc "go_web_boilerplate/internal/transport/rpc/grpc"
 	"go_web_boilerplate/internal/usecase"
@@ -55,12 +55,14 @@ func serveConsumer(c *cli.Context) error {
 	logger := zap.New(f, zapcore.InfoLevel)
 	jwtAuth := auth.NewJWTAuth("G-KaPdSgVkYp3s6v9y$B&E)H+MbQeThW", "testProject", "ashkan", 2000*time.Minute, 70000*time.Hour)
 
-	pgRepoImpl, err := postgres.NewGorm(cfg.Postgres, logger)
+	mongoRepoImpl, err := mongodb.NewMongo(cfg.Mongo, logger)
+	//pgRepoImpl, err := postgres.NewGorm(cfg.Postgres, logger)
 	if err != nil {
 		return err
 	}
 	// define repose
-	userRepo := gormImpl.NewUserRepository(*pgRepoImpl, jwtAuth, logger)
+	//userRepo := gormImpl.NewUserRepository(*pgRepoImpl, jwtAuth, logger)
+	userRepo := mongoImpl.NewUserRepository(*mongoRepoImpl, jwtAuth, logger)
 
 	// define userCases
 	userUserCase := usecase.NewUserUseCase(userRepo, logger)
