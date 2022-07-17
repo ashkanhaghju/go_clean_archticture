@@ -57,14 +57,15 @@ func serve(c *cli.Context) error {
 		time.Duration(cfg.Auth.RefreshTokenDuration)*time.Hour,
 	)
 
-	mongoRepoImpl, err := mongodb.NewMongo(cfg.Mongo, logger)
-	//pgRepoImpl, err := postgres.NewGorm(cfg.Postgres, logger)
+	dbClient, err := mongodb.NewClient(cfg.Mongo, logger)
+	//dbClient, err := postgres.NewGorm(cfg.Postgres, logger)
+
 	if err != nil {
 		return err
 	}
 	// define repose
-	userRepo := mongoImpl.NewUserRepository(*mongoRepoImpl, jwtAuth, logger)
-	//userRepo := gormImpl.NewUserRepository(*pgRepoImpl, jwtAuth, logger)
+	userRepo := mongoImpl.NewUserRepository(*dbClient, jwtAuth, logger)
+	//userRepo := gormImpl.NewUserRepository(*dbClient, jwtAuth, logger)
 
 	// define userCases
 	userUseCase := usecase.NewUserUseCase(userRepo, logger)
@@ -90,6 +91,12 @@ func serve(c *cli.Context) error {
 	if err := restServer.Shutdown(); err != nil {
 		fmt.Println("\nRest server doesn't shutdown in 10 seconds")
 	}
+
+	defer func() {
+		if err = dbClient.Disconnect(); err != nil {
+			fmt.Println("\nDB server doesn't shutdown")
+		}
+	}()
 
 	return nil
 }

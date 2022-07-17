@@ -33,6 +33,14 @@ func NewGorm(cfg config.Postgres, logger logger.Logger) (*DB, error) {
 	return &DB{Db: db, Logger: logger}, nil
 }
 
+func (dbc DB) Disconnect() error {
+	db, err := dbc.Db.DB()
+	if err != nil {
+		return err
+	}
+	return db.Close()
+}
+
 func dsn(cfg config.Postgres) string {
 	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Tehran", cfg.Host, cfg.Username, cfg.Password, cfg.DBName, cfg.Port)
 }

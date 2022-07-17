@@ -55,12 +55,12 @@ func serveGrpc(c *cli.Context) error {
 	logger := zap.New(f, zapcore.InfoLevel)
 	jwtAuth := auth.NewJWTAuth("G-KaPdSgVkYp3s6v9y$B&E)H+MbQeThW", "testProject", "ashkan", 2000*time.Minute, 70000*time.Hour)
 
-	pgRepoImpl, err := postgres.NewGorm(cfg.Postgres, logger)
+	dbClient, err := postgres.NewGorm(cfg.Postgres, logger)
 	if err != nil {
 		return err
 	}
 	// define repose
-	userRepo := gormImpl.NewUserRepository(*pgRepoImpl, jwtAuth, logger)
+	userRepo := gormImpl.NewUserRepository(*dbClient, jwtAuth, logger)
 
 	// define userCases
 	userUserCase := usecase.NewUserUseCase(userRepo, logger)
@@ -85,6 +85,12 @@ func serveGrpc(c *cli.Context) error {
 	if err := gServer.Shutdown(); err != nil {
 		fmt.Println("\nRest server doesn't shutdown in 10 seconds")
 	}
+
+	defer func() {
+		if err = dbClient.Disconnect(); err != nil {
+			fmt.Println("\nDB server doesn't shutdown")
+		}
+	}()
 
 	return nil
 }

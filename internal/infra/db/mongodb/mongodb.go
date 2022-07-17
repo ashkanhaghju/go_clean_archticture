@@ -17,16 +17,11 @@ type DBClient struct {
 	Logger logger.Logger
 }
 
-func NewMongo(cfg config.Mongo, logger logger.Logger) (*DBClient, error) {
+func NewClient(cfg config.Mongo, logger logger.Logger) (*DBClient, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	db, err := mongo.Connect(ctx, options.Client().ApplyURI(dsn(cfg)))
-	/*	defer func() {
-			if err = db.Disconnect(ctx); err != nil {
-				panic(err)
-			}
-		}()
-	*/
+
 	ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	err = db.Ping(ctx, readpref.Primary())
@@ -36,6 +31,15 @@ func NewMongo(cfg config.Mongo, logger logger.Logger) (*DBClient, error) {
 	}
 
 	return &DBClient{Db: *db.Database(cfg.DBName), Logger: logger}, nil
+}
+
+func (dbc DBClient) Disconnect() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := dbc.Db.Client().Disconnect(ctx); err != nil {
+		return err
+	}
+	return nil
 }
 
 func dsn(cfg config.Mongo) string {
